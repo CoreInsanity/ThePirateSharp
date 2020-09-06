@@ -1,0 +1,12 @@
+C:\Users\maxim\Documents\Projects\ThePirateSharp\ThePirateBay\TPB Console client\bin\Debug\TPB Console client.exe.config
+C:\Users\maxim\Documents\Projects\ThePirateSharp\ThePirateBay\TPB Console client\bin\Debug\TPB Console client.exe
+C:\Users\maxim\Documents\Projects\ThePirateSharp\ThePirateBay\TPB Console client\bin\Debug\TPB Console client.pdb
+C:\Users\maxim\Documents\Projects\ThePirateSharp\ThePirateBay\TPB Console client\bin\Debug\ThePirateBay.dll
+C:\Users\maxim\Documents\Projects\ThePirateSharp\ThePirateBay\TPB Console client\bin\Debug\HtmlAgilityPack.dll
+C:\Users\maxim\Documents\Projects\ThePirateSharp\ThePirateBay\TPB Console client\bin\Debug\ThePirateBay.pdb
+C:\Users\maxim\Documents\Projects\ThePirateSharp\ThePirateBay\TPB Console client\bin\Debug\HtmlAgilityPack.pdb
+C:\Users\maxim\Documents\Projects\ThePirateSharp\ThePirateBay\TPB Console client\bin\Debug\HtmlAgilityPack.xml
+C:\Users\maxim\Documents\Projects\ThePirateSharp\ThePirateBay\TPB Console client\obj\Debug\TPB Console client.csprojAssemblyReference.cache
+C:\Users\maxim\Documents\Projects\ThePirateSharp\ThePirateBay\TPB Console client\obj\Debug\TPB Console client.csproj.CopyComplete
+C:\Users\maxim\Documents\Projects\ThePirateSharp\ThePirateBay\TPB Console client\obj\Debug\TPB Console client.exe
+C:\Users\maxim\Documents\Projects\ThePirateSharp\ThePirateBay\TPB Console client\obj\Debug\TPB Console client.pdb

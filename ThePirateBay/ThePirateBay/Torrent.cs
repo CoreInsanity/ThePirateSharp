@@ -10,7 +10,7 @@ namespace ThePirateBay
         public string Name { get; set; }
         public string Magnet { get; set; }
         public string File { get; set; }
-        public string Uploaded { get; set; }
+        public DateTime Uploaded { get; set; }
         public string Size { get; set; }
         public decimal SizeBytes { get; set; }
         public string Uled { get; set; }

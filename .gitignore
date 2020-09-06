@@ -5,5 +5,11 @@
 /ThePirateBay/CrawlerTest/bin/Debug
 /ThePirateBay/CrawlerTest/obj/Debug
 /ThePirateBay/packages/HtmlAgilityPack.1.4.6
-/ThePirateBay/ThePirateBay/bin/Debug
+/ThePirateBay/packages/CefSharp.WinForms.84.4.10
+/ThePirateBay/packages/CefSharp.OffScreen.84.4.10
+/ThePirateBay/packages/CefSharp.Common.84.4.10
+/ThePirateBay/packages/cef.redist.x86.84.4.1
+/ThePirateBay/packages/cef.redist.x64.84.4.1
+/ThePirateBay/TPB Console client/bin
+/ThePirateBay/ThePirateBay/bin
 /ThePirateBay/ThePirateBay/obj/Debug

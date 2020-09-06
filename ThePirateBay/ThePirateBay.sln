@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.30501.0
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29728.190
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ThePirateBay", "ThePirateBay\ThePirateBay.csproj", "{A13F287E-3627-4E41-905C-637C08579AB7}"
 EndProject
@@ -14,22 +14,45 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{D820AB
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CrawlerTest", "CrawlerTest\CrawlerTest.csproj", "{2A941617-56FB-4AF9-862E-D53F549D5030}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TPB Console client", "TPB Console client\TPB Console client.csproj", "{2F9C13A4-21BC-475C-8918-687A9B824421}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
 		Release|Any CPU = Release|Any CPU
+		Release|x64 = Release|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{A13F287E-3627-4E41-905C-637C08579AB7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{A13F287E-3627-4E41-905C-637C08579AB7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A13F287E-3627-4E41-905C-637C08579AB7}.Debug|x64.ActiveCfg = Debug|x64
+		{A13F287E-3627-4E41-905C-637C08579AB7}.Debug|x64.Build.0 = Debug|x64
 		{A13F287E-3627-4E41-905C-637C08579AB7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A13F287E-3627-4E41-905C-637C08579AB7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A13F287E-3627-4E41-905C-637C08579AB7}.Release|x64.ActiveCfg = Release|x64
+		{A13F287E-3627-4E41-905C-637C08579AB7}.Release|x64.Build.0 = Release|x64
 		{2A941617-56FB-4AF9-862E-D53F549D5030}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{2A941617-56FB-4AF9-862E-D53F549D5030}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2A941617-56FB-4AF9-862E-D53F549D5030}.Debug|x64.ActiveCfg = Debug|x64
+		{2A941617-56FB-4AF9-862E-D53F549D5030}.Debug|x64.Build.0 = Debug|x64
 		{2A941617-56FB-4AF9-862E-D53F549D5030}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2A941617-56FB-4AF9-862E-D53F549D5030}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2A941617-56FB-4AF9-862E-D53F549D5030}.Release|x64.ActiveCfg = Release|x64
+		{2A941617-56FB-4AF9-862E-D53F549D5030}.Release|x64.Build.0 = Release|x64
+		{2F9C13A4-21BC-475C-8918-687A9B824421}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2F9C13A4-21BC-475C-8918-687A9B824421}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2F9C13A4-21BC-475C-8918-687A9B824421}.Debug|x64.ActiveCfg = Debug|x64
+		{2F9C13A4-21BC-475C-8918-687A9B824421}.Debug|x64.Build.0 = Debug|x64
+		{2F9C13A4-21BC-475C-8918-687A9B824421}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2F9C13A4-21BC-475C-8918-687A9B824421}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2F9C13A4-21BC-475C-8918-687A9B824421}.Release|x64.ActiveCfg = Release|x64
+		{2F9C13A4-21BC-475C-8918-687A9B824421}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {99F53F54-1F65-4984-B3A8-7B497EDF4DB2}
 	EndGlobalSection
 EndGlobal

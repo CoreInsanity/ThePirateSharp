@@ -7,131 +7,83 @@ using HtmlAgilityPack;
 using System.Net;
 using System.IO;
 using System.Globalization;
+using CefSharp.OffScreen;
+using System.Threading;
+using CefSharp;
 
 namespace ThePirateBay
 {
-	public class Tpb
-	{
-		public static IEnumerable<Torrent> Search(Query query)
-		{
-			List<Torrent> result = new List<Torrent>();
-			WebRequest request = WebRequest.Create(query.TranslateToUrl());
-            ((HttpWebRequest)request).UserAgent = "Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.153 Safari/537.36";
-            ((HttpWebRequest)request).AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
-			WebResponse response = request.GetResponse();
-			HtmlDocument doc = new HtmlDocument();
-            string html = string.Empty;
-            using (StreamReader reader = new StreamReader(response.GetResponseStream()))
+    public class Tpb
+    {
+        private ChromiumWebBrowser ChromiumClient { get; set; }
+        private SemaphoreSlim Signal { get; set; } = new SemaphoreSlim(0, 20);
+
+        public Tpb()
+        {
+            ChromiumClient = new ChromiumWebBrowser();
+            for (int i = 0; i < 30; i++)
             {
-                html = reader.ReadToEnd();
+                if (ChromiumClient.IsBrowserInitialized) break;
+                Thread.Sleep(1000);
             }
-			doc.LoadHtml(html);
+            if (!ChromiumClient.IsBrowserInitialized) throw new Exception("Chromium client is not initialized");
+        }
 
-			foreach (var tr in doc.DocumentNode.Descendants().Where(x => x.Name == "tr"))
-			{
-				if (!tr.Attributes.Any(x => x.Name == "class") || tr.Attributes.Single(x => x.Name == "class").Value != "header")
-				{
-					Torrent torrent = new Torrent();
+        public List<Torrent> Search(Query query)
+        {
+            List<Torrent> result = new List<Torrent>();
+            HtmlDocument doc = new HtmlDocument();
+            string htmlBody = "";
 
-					// First TD: parent category and category
-					HtmlNode td1 = tr.Descendants().Where(x => x.Name == "td").First();
-                    IEnumerable<HtmlNode> categories = td1.Descendants("a");
-					torrent.CategoryParent = int.Parse(categories.First().Attributes["href"].Value.Split('/').Last());
-					torrent.Category = int.Parse(categories.Last().Attributes["href"].Value.Split('/').Last());
+            Signal.Dispose();
+            Signal = new SemaphoreSlim(0, 20);
+            ChromiumClient.FrameLoadEnd += new EventHandler<FrameLoadEndEventArgs>(delegate{Signal.Release();Console.WriteLine("Releasing signal"); });
+            ChromiumClient.Load(query.TranslateToUrl());
+            Signal.Wait();
+            htmlBody = ChromiumClient.GetSourceAsync().Result;
 
-					// Second TD: all another infos, but seeds and leechers
-					HtmlNode td2 = tr.Descendants().Where(x => x.Name == "td").ElementAt(1);
-					HtmlNode aTorrentName = td2.Descendants("div").Single().Descendants("a").Single();
-					torrent.Name = aTorrentName.InnerText;
-					torrent.Magnet = td2.Descendants("a").Where(a => a.Attributes.Any(attr => attr.Name == "href") && a.Attributes["href"].Value.StartsWith("magnet:")).Single().Attributes["href"].Value;
-					IEnumerable<HtmlNode> possibleDownloadLink = td2.Descendants("a").Where(a => a.Attributes.Any(attr => attr.Name == "href") && a.Attributes["href"].Value.Contains(".torrent") && a.Attributes.Any(attr => attr.Name == "title") && a.Attributes["title"].Value == "Download this torrent");
-					if (possibleDownloadLink.Count() == 1)
-					{
-						torrent.File = possibleDownloadLink.Single().Attributes["href"].Value;
-						if (torrent.File.StartsWith("//"))
-						{
-							torrent.File = "http:" + torrent.File;
-						}
-					}
-                    IEnumerable<HtmlNode> icons = td2.Descendants("img");
-                    foreach (var icon in icons)
-                    {
-                        if (icon.Attributes.Any(x => x.Name == "alt"))
-                        {
-                            if (icon.Attributes["alt"].Value == "Trusted")
-                            {
-                                torrent.IsTrusted = true;
-                            }
-                            if (icon.Attributes["alt"].Value == "This torrent has a cover image")
-                            {
-                                torrent.HasCoverImage = true;
-                            }
-                            if (icon.Attributes["alt"].Value.Contains(" comments"))
-                            {
-                                torrent.Comments = int.Parse(icon.Attributes["alt"].Value.Split(' ')[3]);
-                            }
-                            if (icon.Attributes["alt"].Value == "VIP")
-                            {
-                                torrent.IsVip = true;
-                            }
-                        }
-                    }
-                    HtmlNode details = td2.Descendants("font").First();
-                    string[] parameters = details.InnerText.Replace("&nbsp;", " ").Split(',');
-                    foreach (var parameter in parameters)
-                    {
-                        if (parameter.Trim().StartsWith("Uploaded"))
-                        {
-                            string[] uploaded = parameter.Trim().Split(' ');
-                            if (uploaded.Length > 2)
-                            {
-                                torrent.Uploaded = string.Join(" ", uploaded.Skip(1));
-                            }
-                            else
-                            {
-                                torrent.Uploaded = uploaded.Last();
-                            }
-                        }
-                        else if (parameter.Trim().StartsWith("Size"))
-                        {
-                            string[] size = parameter.Trim().Split(' ');
-                            torrent.Size = string.Join(" ", size.Skip(1));
-                            if (size.Last().Contains("KiB"))
-                            {
-                                torrent.SizeBytes = decimal.Parse(size[1], System.Globalization.NumberStyles.AllowDecimalPoint, CultureInfo.GetCultureInfo("en-US")) * 1024M;
-                            }
-                            else if (size.Last().Contains("MiB"))
-                            {
-                                torrent.SizeBytes = decimal.Parse(size[1], System.Globalization.NumberStyles.AllowDecimalPoint, CultureInfo.GetCultureInfo("en-US")) * 1024M * 1024M;
-                            }
-                            else if (size.Last().Contains("GiB"))
-                            {
-                                torrent.SizeBytes = decimal.Parse(size[1], System.Globalization.NumberStyles.AllowDecimalPoint, CultureInfo.GetCultureInfo("en-US")) * 1024M * 1024M * 1024M;
-                            }
-                            else if (size.Last().Contains("TiB"))
-                            {
-                                torrent.SizeBytes = decimal.Parse(size[1], System.Globalization.NumberStyles.AllowDecimalPoint, CultureInfo.GetCultureInfo("en-US")) * 1024M * 1024M * 1024M * 1024M;
-                            }
-                        }
-                        else if (parameter.Trim().StartsWith("ULed"))
-                        {
-                            string[] uled = parameter.Trim().Split(' ');
-                            torrent.Uled = uled.Last();
-                        }
-                    }
+            doc.LoadHtml(htmlBody);
 
-					// Third TD: seeds
-					HtmlNode td3 = tr.Descendants().Where(x => x.Name == "td").ElementAt(2);
-					torrent.Seeds = int.Parse(td3.InnerText);
+            var torrentSection = doc.DocumentNode.Descendants().Where(x => x.Name == "section").First(y => y.Attributes.Any(a => a.Value == "col-center")).Descendants().First(d => d.Attributes.Any(a => a.Value == "torrents"));
 
-					// Fourth TD: leechers
-					HtmlNode td4 = tr.Descendants().Where(x => x.Name == "td").ElementAt(3);
-					torrent.Leechers = int.Parse(td4.InnerText);
+            foreach (var torrent in torrentSection.Descendants().Where(d => d.Attributes.Where(a => a.Name == "id").Any(v => v.Value == "st")))
+            {
+                var torrentModel = new Torrent();
+                torrentModel.Name = torrent.Descendants().First(d => d.Attributes.Where(a => a.Name == "class").Any(v => v.Value.Contains("item-title"))).InnerText.Replace("&nbsp;", "");
+                torrentModel.Uploaded = DateTime.Parse(torrent.Descendants().First(d => d.Attributes.Where(a => a.Name == "class").Any(v => v.Value.Contains("item-uploaded"))).InnerText.Replace("&nbsp;", ""));
+                torrentModel.Size = torrent.Descendants().First(d => d.Attributes.Where(a => a.Name == "class").Any(v => v.Value.Contains("item-size"))).InnerText.Replace("&nbsp;", "");
+                torrentModel.Seeds = Convert.ToInt32(torrent.Descendants().First(d => d.Attributes.Where(a => a.Name == "class").Any(v => v.Value.Contains("item-seed"))).InnerText.Replace("&nbsp;", ""));
+                torrentModel.Leechers = Convert.ToInt32(torrent.Descendants().First(d => d.Attributes.Where(a => a.Name == "class").Any(v => v.Value.Contains("item-leech"))).InnerText.Replace("&nbsp;", ""));
+                torrentModel.Uled = torrent.Descendants().First(d => d.Attributes.Where(a => a.Name == "class").Any(v => v.Value.Contains("item-user"))).InnerText.Replace("&nbsp;", "");
+                torrentModel.Magnet = torrent.Descendants().First(d => d.Attributes.Where(a => a.Name == "class").Any(v => v.Value.Contains("item-icons"))).Descendants().First(d => d.Name == "a").Attributes.First(a => a.Name == "href").Value;
+                torrentModel.IsTrusted = torrent.Descendants().First(d => d.Attributes.Where(a => a.Name == "class").Any(v => v.Value.Contains("item-icons"))).Descendants().Any(d => d.Attributes.Any(a => a.Value == "Trusted"));
+                torrentModel.IsVip = torrent.Descendants().First(d => d.Attributes.Where(a => a.Name == "class").Any(v => v.Value.Contains("item-icons"))).Descendants().Any(d => d.Attributes.Any(a => a.Value == "VIP"));
+                torrentModel.CategoryParent = Convert.ToInt32(torrent.Descendants().First(d => d.Attributes.Where(a => a.Name == "class").Any(v => v.Value.Contains("item-type"))).Descendants().Where(d => d.Name == "a").ToList()[0].Attributes.First(a => a.Name == "href").Value.Split(':')[1]);
+                torrentModel.Category = Convert.ToInt32(torrent.Descendants().First(d => d.Attributes.Where(a => a.Name == "class").Any(v => v.Value.Contains("item-type"))).Descendants().Where(d => d.Name == "a").ToList()[1].Attributes.First(a => a.Name == "href").Value.Split(':')[1]);
 
-                    result.Add(torrent);
-				}
-			}
+
+                if (torrentModel.Size.Contains("KiB"))
+                {
+                    torrentModel.SizeBytes = decimal.Parse(torrentModel.Size.Replace("KiB", ""), NumberStyles.AllowDecimalPoint, CultureInfo.GetCultureInfo("en-US")) * 1024M;
+                }
+                else if (torrentModel.Size.Contains("MiB"))
+                {
+                    torrentModel.SizeBytes = decimal.Parse(torrentModel.Size.Replace("MiB", ""), NumberStyles.AllowDecimalPoint, CultureInfo.GetCultureInfo("en-US")) * 1024M * 1024M;
+                }
+                else if (torrentModel.Size.Contains("GiB"))
+                {
+                    torrentModel.SizeBytes = decimal.Parse(torrentModel.Size.Replace("GiB", ""), NumberStyles.AllowDecimalPoint, CultureInfo.GetCultureInfo("en-US")) * 1024M * 1024M * 1024M;
+                }
+                else if (torrentModel.Size.Contains("TiB"))
+                {
+                    torrentModel.SizeBytes = decimal.Parse(torrentModel.Size.Replace("TiB", ""), NumberStyles.AllowDecimalPoint, CultureInfo.GetCultureInfo("en-US")) * 1024M * 1024M * 1024M * 1024M;
+                }
+
+                result.Add(torrentModel);
+            }
+
+            Thread.Sleep(2000);
             return result;
-		}
-	}
+        }
+    }
 }

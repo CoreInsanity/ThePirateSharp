@@ -29,7 +29,7 @@ namespace ThePirateBay
 
         public string TranslateToUrl()
         {
-            return string.Format(Constants.UrlSearch, Constants.UrlTpb[0], Term, Page.ToString(), ((int)Order).ToString(), Category.ToString());
+            return $"{Constants.UrlTpb[0]}/search.php?q={Term}&cat={Category}";
         }
     }
 }
