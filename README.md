@@ -19,7 +19,8 @@ Just add a reference for ThePirateSharp to your project and use the `Tpb` class 
 Here is a good example of the basic `Tpb` usage:
 
 ```
-IEnumerable<Torrent> torrents = Tpb.Search(new Query("frozen"));
+Tpb client = new Tpb();
+IEnumerable<Torrent> torrents = client.Search(new Query("frozen"));
 ```
 
 ### Torrent Class
